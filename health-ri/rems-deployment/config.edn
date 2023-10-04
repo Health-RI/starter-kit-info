@@ -1,0 +1,28 @@
+{:port 3001
+ :public-url "https://rems.gdi-dev.health-ri.nl/"
+ :database-url "postgresql://localhost:5455/postgresDB?user=postgres&password=postgresPW"
+ :ssl-port 3000 
+ :ssl-keystore "certs/rems.gdi-dev.health-ri.nl.keystore.jks" ; Java keystore file
+ :ssl-keystore-password "health-ri.nl" ; (optional) password of key file
+ :search-index-path "/tmp/rems-search-index"
+ :authentication :oidc
+ :oidc-metadata-url "https://login.elixir-czech.org/oidc/.well-known/openid-configuration" 
+ :oidc-client-id "285f0679-7022-47ed-9de1-8e65bd9e56b3"
+ :oidc-client-secret "<CLIENT_SECRET_FROM_LSAAI>"
+ :oidc-scopes "openid profile email"
+ :oidc-userid-attributes [{:attribute "sub"}]
+ :oidc-name-attributes ["name" "unique_name" "family_name"]
+ :oidc-email-attributes ["email"]
+ :log-authentication-details true
+ :languages [:en]
+ :catalogue-is-public true
+ :ga4gh-visa-private-key "keys/private-key.jwk"
+ :ga4gh-visa-public-key "keys/public-key.jwk"
+ :enable-permissions-api true
+ :enable-pdf-api true
+ :enable-catalogue-tree true
+ :catalogue-tree-show-matching-parents true
+ :enable-autosave true
+ :extra-stylesheets {:root "./" :files ["theme/styles.css"]}
+ :theme-path "theme/theme.edn"
+ :extra-pages-path "extra-pages"}
