@@ -176,24 +176,26 @@ cd ..
 
 ### App registration LSAAI 
 
-Authentication and Authorization Infrastructure (AAI). Initially, obtaining an account is the first step https://elixir-europe.org/platforms/compute/aai/service-providers. Subsequently, I proceeded to register our service. Please note that approval for this step may entail a waiting period. 
+Authentication and Authorization Infrastructure (AAI). Initially, obtaining an account is the first step https://elixir-europe.org/platforms/compute/aai/service-providers. Subsequently, I proceeded to register our service. Please note that approval for this step may entail a waiting period. After approval you can e-mail to **support@aai.lifescience-ri.eu** for adding your REMS service as GA4GH Passports and Visas issuer/broker. Here is that https://rems.gdi-dev.health-ri.nl
 
 Management of the app registration is done within: [LS AAI Services navigator](https://services.aai.lifescience-ri.eu/spreg/)
 
 The LSAAI configuration looks for example 
 
-**Service name**: REMS_GDI_NL_DEV\
-**Description**: REMS DEV\
-**Service homepage**: https://www.health-ri.nl\
-**Login url**: https://rems.gdi-dev.health-ri.nl\
-**Client ID**: Received after registration\
-**Client Secret**: Received after registration\
-**Flows service will use**: authorization code\
-**Token endpoint authentication type**: client_secret_basic\
-**PKCE type**: SHA256 code challenge\
-**Scopes the service will use** openid profile email\
-**Allowed post logout redirect URLs**: https://rems.gdi-dev.health-ri.nl\
-**Issue refresh token logout**: checked
+```
+Service name: REMS_GDI_NL_DEV
+Description**: REMS DEV
+Service homepage: https://www.health-ri.nl
+Login url: https://rems.gdi-dev.health-ri.nl
+Client ID: Received after registration
+Client Secret: Received after registration
+Flows service will use: authorization code
+Token endpoint authentication type: client_secret_basic
+PKCE type: SHA256 code challenge
+Scopes the service will use: openid profile email
+Allowed post logout redirect URLs: https://rems.gdi-dev.health-ri.nl
+Issue refresh token logout: checked
+```
 
 After approvel by the LSAAI copy the required field to the OIDC fiels in the configuration
 
