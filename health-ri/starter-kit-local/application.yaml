@@ -1,0 +1,60 @@
+---
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    root: info
+    cz.muni.ics: debug
+
+mock-broker:
+  enabled: True
+  issuer: http://localhost:8080/oidc/
+  jku: http://localhost:8080/ga4gh-broker/jwk
+  path-to-jwk-file: /etc/lsaai-mock/keys.jwks
+  visa-configs-path: /etc/lsaai-mock/ga4gh-broker/users/
+  passport-repositories:
+  - name: REMS-LOCAL-API
+    url: https://healthri-dev.westeurope.cloudapp.azure.com:3001/api/permissions/{user_id}?expired=false
+    jwks: https://healthri-dev.westeurope.cloudapp.azure.com:3001/api/jwk
+    headers:
+      - header: x-rems-api-key
+        value: qwedsa
+      - header: x-rems-user-id
+        value: robot
+
+visa-writers:
+        #  enabled: False
+# Uncomment to enable writing from visa sources
+  enabled: False
+  db:
+    url: jdbc:mysql://localhost:3307/broker
+    username: brokerUser
+    password: brokerPass
+    driver: "com.mysql.cj.jdbc.Driver"
+  repositories:
+    - name: Local REMS
+      jwks: http://rems.local/api/jwk
+      auth:
+        api-key:
+          api-key-header: X-visa-writer
+          api-key-value: X-vis-writer-key
+
+passport-v1-0:
+  enabled: True
+  auth:
+    - username: "broker-aai-user"
+      password: "broker-aai-pass"
+
+passport-v1-2:
+# Uncomment to enable token-exchange integration with AAI mock
+  enabled: True
+  auth:
+    introspection-client-id: broker
+    introspection-client-secret: broker-secret
+    introspection-uri: http://localhost:8080/oidc/introspect
