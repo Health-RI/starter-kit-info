@@ -133,7 +133,7 @@ grant-types: ["authorization_code"]
 6. Make sure mysql volumes of `aai-db` and `broker-db` in `docker-compose.yml`
 
 7. Run mock ls-aai via
-```bash
+```shell
 docker compose up -d
 ```
 Please review [GDI mock LS-AAI documentation](https://github.com/GenomicDataInfrastructure/starter-kit-lsaai-mock/blob/main/README.md)
@@ -174,7 +174,7 @@ oidc:
 In the example the issuer should match REMS url.
 
 5. Run storage and interface via
-```bash
+```shell
 docker compose up -d
 ```
 
