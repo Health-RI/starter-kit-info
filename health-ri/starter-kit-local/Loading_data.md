@@ -16,29 +16,31 @@ docker cp ingest:/shared/c4gh.pub.pem .
 crypt4gh encrypt -f <file-to-encrypt> -p <sda-c4gh-public-key>
 ```
 5. Prepare config
-5.1 You can fill in the following template:
-```yaml
-[default]
-access_key = <USER_LS-AAI_ID>
-secret_key = <USER_LS-AAI_ID>
-access_token=<JW_TOKEN>
-check_ssl_certificate = False
-check_ssl_hostname = False
-encoding = UTF-8
-encrypt = False
-guess_mime_type = True
-host_base = <S3_INBOX_DOMAIN_NAME>
-host_bucket = <S3_INBOX_DOMAIN_NAME>
-human_readable_sizes = true
-multipart_chunk_size_mb = 50
-use_https = True
-socket_timeout = 30
-```
-or copy configuration file from `auth` and edit it afterward:
-```shell
-docker cp auth:/shared/s3cmd.conf
-```
-5.2 Get JWK token for the target user and put it into `s3cmd.conf`
+
+    5.1 You can fill in the following template:
+    ```yaml
+    [default]
+    access_key = <USER_LS-AAI_ID>
+    secret_key = <USER_LS-AAI_ID>
+    access_token=<JW_TOKEN>
+    check_ssl_certificate = False
+    check_ssl_hostname = False
+    encoding = UTF-8
+    encrypt = False
+    guess_mime_type = True
+    host_base = <S3_INBOX_DOMAIN_NAME>
+    host_bucket = <S3_INBOX_DOMAIN_NAME>
+    human_readable_sizes = true
+    multipart_chunk_size_mb = 50
+    use_https = True
+    socket_timeout = 30
+    ```
+    or copy configuration file from `auth` and edit it afterward:
+    ```shell
+    docker cp auth:/shared/s3cmd.conf
+    ```
+    5.2 Get JWK token for the target user and put it into `s3cmd.conf`.
+
 6. Calculate 256-bit and md5 checksums of a file name:
 ```shell
 export ENC_SHA=$(sha256sum "<file_name>.c4gh" | cut -d' ' -f 1)
@@ -81,7 +83,7 @@ lega=# select * from sda.files;
 
 The whole payload message looks like this:
 ```json
-[{"payload_bytes":218,"redelivered":false,"exchange":"sda","routing_key":"inbox","message_count":0,"properties":{"correlation_id":"83adba06-9532-436c-b406-166a350bbef7","delivery_mode":2,"content_encoding":"UTF-8","content_type":"application/json"},"payload":"{\"operation\":\"upload\",\"user\":\"azureuser\",\"filepath\":\"azureuser/NA12878.bam.c4gh\",\"filesize\":15242998,\"encrypted_checksums\":[{\"type\":\"sha256\",\"value\":\"7cb1555ba8f1f299ebcaa60b60c3bd76dc4cfcd7d2df087766a760e7e1bc1c5e\"}]}","payload_encoding":"string"}]
+[{"payload_bytes":218,"redelivered":false,"exchange":"sda","routing_key":"inbox","message_count":0,"properties":{"correlation_id":"1a67005c-bf95-4965-b62e-2f5ef319a281","delivery_mode":2,"content_encoding":"UTF-8","content_type":"application/json"},"payload":"{\"operation\":\"upload\",\"user\":\"azureuser\",\"filepath\":\"azureuser/NA12878.bam.c4gh\",\"filesize\":15242998,\"encrypted_checksums\":[{\"type\":\"sha256\",\"value\":\"7cb1555ba8f1f299ebcaa60b60c3bd76dc4cfcd7d2df087766a760e7e1bc1c5e\"}]}","payload_encoding":"string"}]
 ```
 
 9. Publish message to trigger ingestion
