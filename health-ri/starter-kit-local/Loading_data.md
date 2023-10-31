@@ -1,3 +1,9 @@
+## Storage and Interfaces Loading Data Flow
+
+This document describes steps to upload a file to `storage and interfaces` component from host machine, outside the container.
+
+The flow is summarized on the following schema:
+![](./storage_and_interface_data_flow.drawio.png)
 
 1. Install `crypt4gh` utility as per [instruction](https://github.com/neicnordic/crypt4gh) 
 2. Install [s3cmd client](https://s3tools.org/s3cmd)
@@ -33,7 +39,7 @@ or copy configuration file from `auth` and edit it afterward:
 docker cp auth:/shared/s3cmd.conf
 ```
 5.2 Get JWK token for the target user and put it into `s3cmd.conf`
-7. Calculate 256-bit and md5 checksums of a file name:
+6. Calculate 256-bit and md5 checksums of a file name:
 ```shell
 export ENC_SHA=$(sha256sum "<file_name>.c4gh" | cut -d' ' -f 1)
 export ENC_MD5=$(md5sum "<file_name>.c4gh" | cut -d' ' -f 1)
@@ -53,6 +59,14 @@ upload: 'NA12878.bam.c4gh' -> 's3://azureuser/NA12878.bam.c4gh'  [1 of 1]
 ```
 Behind the scene `s3inbox` component checks user identity, validates token, generates target `s3` path (`s3:data/inbox/azureuser/NA12878.bam.c4gh` in our example),
 and passes the file to s3. A file ID is assigned to a file and checksum is calculated, the file is registered in the database. `rabbitmq` guides communication between `s3inbox`, `s3` and database.
+A record is inserted into `postgres` `sda.files` table:
+```commandline
+lega=# select * from sda.files;
+                  id                  | stable_id | submission_user |    submission_file_path    | submission_file_size | archive_file_path | archive_file_size | decrypted_file_size | backup_path | header | encryption_method | created_by | last_modified_by |          created_at           |         last_modified         
+--------------------------------------+-----------+-----------------+----------------------------+----------------------+-------------------+-------------------+---------------------+-------------+--------+-------------------+------------+------------------+-------------------------------+-------------------------------
+ 1a67005c-bf95-4965-b62e-2f5ef319a281 |           | azureuser       | azureuser/NA12878.bam.c4gh |                      |                   |                   |                     |             |        | CRYPT4GH          | inbox      | inbox            | 2023-10-31 09:52:08.543693+00 | 2023-10-31 09:52:08.543693+00
+(1 row)
+```
 
 8. Get correlation id from upload message of `rabbitmq`:
 ```shell
@@ -65,7 +79,7 @@ and passes the file to s3. A file ID is assigned to a file and checksum is calcu
 ```
 (!) Note: here and further `localhost` should be `rabbitmq` if run inside docker.
 
-The whole payload message lookes like this:
+The whole payload message looks like this:
 ```json
 [{"payload_bytes":218,"redelivered":false,"exchange":"sda","routing_key":"inbox","message_count":0,"properties":{"correlation_id":"83adba06-9532-436c-b406-166a350bbef7","delivery_mode":2,"content_encoding":"UTF-8","content_type":"application/json"},"payload":"{\"operation\":\"upload\",\"user\":\"azureuser\",\"filepath\":\"azureuser/NA12878.bam.c4gh\",\"filesize\":15242998,\"encrypted_checksums\":[{\"type\":\"sha256\",\"value\":\"7cb1555ba8f1f299ebcaa60b60c3bd76dc4cfcd7d2df087766a760e7e1bc1c5e\"}]}","payload_encoding":"string"}]
 ```
@@ -113,7 +127,15 @@ The whole payload message lookes like this:
         -d "$ingest_body"
 ```
 Publishing procedure includes `ingest` connecting to database, receiving a message with file information, decrypts first data block, writes archived file to `s3` archive and
-pings `verify` component. `verify` performs some checks, and removes initial file from `s3` inbox.
+pings `verify` component. `verify` performs some checks, modifies files record in postgres, and removes initial file from `s3` inbox.
+`sda.files` record modified by both `ingest` and `verify`:
+```commandline
+lega=# select * from sda.files;
+                  id                  | stable_id | submission_user |    submission_file_path    | submission_file_size |          archive_file_path           | archive_file_size | decrypted_file_size | backup_path |                                                                                                                          header                                                                                                                          | encryption_method | created_by | last_modified_by |          created_at           |         last_modified         
+--------------------------------------+-----------+-----------------+----------------------------+----------------------+--------------------------------------+-------------------+---------------------+-------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+------------+------------------+-------------------------------+-------------------------------
+ 1a67005c-bf95-4965-b62e-2f5ef319a281 |           | azureuser       | azureuser/NA12878.bam.c4gh |                      | 927c7d5a-1a02-45c2-9e54-8d5ed74f57b0 |          15242874 |            15236350 |             | 637279707434676801000000010000006c00000000000000b22df5c77412d23ac2c15346b47ca758a17fae41a6ffe8195d3f14f85316c1455e4dbf7bcea4b1435772772141a0a4f1dd94117b955c9c5fd59a4edb7883e6473c5b74e06a49e1a9b894945c26bc3a46003c0b1134ca4425dd945982ba660b035d4be532 | CRYPT4GH          | inbox      | verify           | 2023-10-31 09:52:08.543693+00 | 2023-10-31 10:01:28.212398+00
+(1 row)
+```
 
 Ingestion can take some time. To check the status run
 ```shell
@@ -155,7 +177,20 @@ decrypted_checksums=$(
         -H 'Content-Type: application/json;charset=UTF-8' \
         -d "$finalize_body"
 ```
+where `accession_id` is a stable id associated with the file, in current examle we used `EGAF74900000001` (see database record below).
+
 As result of the execution `finalize` associates accession id with files and confirms file delivery.
+
+Resulting `postgres` `sda.files` record:
+```commandline
+lega=# select * from sda.files;
+                  id                  |    stable_id    | submission_user |    submission_file_path    | submission_file_size |          archive_file_path           | archive_file_size | decrypted_file_size | backup_path |                                                                                                                          header                                                                                                                          | encryption_method | created_by | last_modified_by |          created_at           |         last_modified         
+--------------------------------------+-----------------+-----------------+----------------------------+----------------------+--------------------------------------+-------------------+---------------------+-------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+------------+------------------+-------------------------------+-------------------------------
+ 1a67005c-bf95-4965-b62e-2f5ef319a281 | EGAF74900000001 | azureuser       | azureuser/NA12878.bam.c4gh |                      | 927c7d5a-1a02-45c2-9e54-8d5ed74f57b0 |          15242874 |            15236350 |             | 637279707434676801000000010000006c00000000000000b22df5c77412d23ac2c15346b47ca758a17fae41a6ffe8195d3f14f85316c1455e4dbf7bcea4b1435772772141a0a4f1dd94117b955c9c5fd59a4edb7883e6473c5b74e06a49e1a9b894945c26bc3a46003c0b1134ca4425dd945982ba660b035d4be532 | CRYPT4GH          | inbox      | finalize         | 2023-10-31 09:52:08.543693+00 | 2023-10-31 13:42:46.147594+00
+(1 row)
+
+```
+
 11. Assign file to dataset (example with 2 files):
 ```shell
 mappings=$(
@@ -188,6 +223,8 @@ curl -s -u test:test "http://localhost:15672/api/exchanges/gdi/sda/publish" \
     -H 'Content-Type: application/json;charset=UTF-8' \
     -d "$mapping_body"
 ```
+As a result `mapper` creates a dataset (if not exists) and associates files with it by accession id.
+
 To validate files are there from database side:
 ```shell
 docker exec -it postgres bash
