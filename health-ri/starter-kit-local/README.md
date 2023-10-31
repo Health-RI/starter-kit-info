@@ -46,24 +46,24 @@ web.baseURL=https://healthri-dev.westeurope.cloudapp.azure.com:8080/oidc
 ```
 3. Configure `<LS-AAI repo>/configuration/aai-mock/ga4gh-broker/application.yaml`:
 
-3.1 Uncomment and configure passport repositories:
-
-```yaml
-passport-repositories:
-  # name does not act as an id, can be anything
-  - name: REMS-LOCAL-API
-    # rems endpoint for user permission info and jwk
-    url: https://healthri-dev.westeurope.cloudapp.azure.com:3001/api/permissions/{user_id}?expired=false
-    jwks: https://healthri-dev.westeurope.cloudapp.azure.com:3001/api/jwk
-    headers:
-      # rems api key and user id (preconfigured as per https://github.com/GenomicDataInfrastructure/starter-kit-rems#load-test-data)
-      - header: x-rems-api-key
-        value: qwedsa
-      - header: x-rems-user-id
-        value: robot
-```
-3.2 Note, visas storage is not implemented so that part should stay commented or disabled.
-3.3 Enable passports
+   3.1 Uncomment and configure passport repositories:
+   
+   ```yaml
+   passport-repositories:
+     # name does not act as an id, can be anything
+     - name: REMS-LOCAL-API
+       # rems endpoint for user permission info and jwk
+       url: https://healthri-dev.westeurope.cloudapp.azure.com:3001/api/permissions/{user_id}?expired=false
+       jwks: https://healthri-dev.westeurope.cloudapp.azure.com:3001/api/jwk
+       headers:
+         # rems api key and user id (preconfigured as per https://github.com/GenomicDataInfrastructure/starter-kit-rems#load-test-data)
+         - header: x-rems-api-key
+           value: qwedsa
+         - header: x-rems-user-id
+           value: robot
+   ```
+   3.2 Note, visas storage is not implemented so that part should stay commented or disabled.
+   3.3 Enable passports
 
 Broker configuration config is presented in [application.yaml file](application.yaml)
 
@@ -71,11 +71,11 @@ Broker configuration config is presented in [application.yaml file](application.
 
 User's configurations are stored under `<LS-AAI repo>/configuration/aai-mock/userinfos/`.
 `s3` and `s3inbox` components of `storage and interfaces` requires username to match username of a user registered in ls-aai
-but within `sinbox` username is overwritten by machine username.
+but within `s3inbox` username is currently overwritten by machine username.
 
 5. Provide configurations for clients.
 
-In this example we need to register `storage and interface` as a regular client and `REMS` as broker client. 
+In this example we need to register `storage and interfaces` as a regular client and `REMS` as broker client. 
 Clients configuration should be placed under `<LS-AAI repo>/configuration/aai-mock/clients` and contain the following:
 
 - Storage and interfaces client congig:
@@ -139,7 +139,7 @@ Overall REMS configuration is as the following:
 
 #### REMS deployment
 
-Make sure REMS broker client is configured in mock `ls-aai` (see below).
+Make sure REMS broker client is configured in mock `ls-aai` (see above).
 Follow [instructions](https://github.com/GenomicDataInfrastructure/starter-kit-rems#create-a-jwk-pair-for-ga4gh-visas) to run and populate REMS.
 
 #### Storage and interfaces configuration
