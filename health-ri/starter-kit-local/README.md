@@ -1,13 +1,19 @@
-# GDI Starter Kit local deployment
+# GDI Starter Kit Local Deployment
 
 This document walks you through local deployment of dockerized starter kit components.
 
 The setup consists of the following components:
-- mock `ls-aai` - identity provider
+- Mock LS-AAI - identity provider
 - REMS - visas issuer
-- storage and interface - data storage tool
+- Storage and Interfaces - data storage tool
 
-## Table of Content
+**Table of content:**
+ - [Installing SSL certificate](#Installing-SSL-certificate)
+ - [Components configuration and deployment](#components-configuration-and-deployment)
+      + [REMS configuration](#rems-configuration)
+      + [REMS deployment](#rems-deployment)
+      + [Mock LS-AAI configuration](#mock-ls-aai-configuration)
+      + [Storage and interfaces configuration](#storage-and-interfaces-configuration)
 
 
 ## Deployment notes
@@ -15,9 +21,9 @@ The setup consists of the following components:
 ### Installing SSL certificate
 
 `download` component of `storage and interfaces` requires issuer endpoint to support HTTPS, that is why installation of 
-an SSL certificate is a first step. It can be done as described [here](../rems-deployment/deploying.md#install-nginx).
+an SSL certificate is a first and mandatory step. It can be done as described [here](../rems-deployment/deploying.md#install-nginx).
 
-### Components configuration
+### Components configuration and deployment
 
 Both `REMS` and `storage and interfaces` require mock `ls-aai` preconfigured and running and being connected
 to `starter-kit-lsaai-mock_lsaaimock` network.
@@ -31,9 +37,7 @@ networks:
   my-app-network:
     external: true
 ```
-Change remove local port binds `rems_app` and `rems_db`, so ports are `3000:3000` and `5452:5432` respectively.
-
-REMS docker-compose.yaml: [file](docker-compose-rems.yml)
+Change local ports for `rems_app` and `rems_db` so they are `3000:3000` and `5452:5432` respectively.
 
 In `config.edn` provide/update the following parameters:
 ```yaml
@@ -106,7 +110,7 @@ but within `sinbox` username is overwritten by machine username.
 In this example we need to register `storage and interface` as a regular client and `REMS` as broker client. 
 Clients configuration should be placed under `<LS-AAI repo>/configuration/aai-mock/clients` and contain the following:
 
-- Storage and interface client congig:
+- Storage and interfaces client congig:
 ```yaml
 client-name: "auth"
 client-id: "XC56EL11xx"
@@ -130,7 +134,7 @@ scope: ["openid", "profile", "email", "ga4gh_passport_v1"]
 grant-types: ["authorization_code"]
 ```
 
-6. Make sure mysql volumes of `aai-db` and `broker-db` in `docker-compose.yml`
+6. Make sure mysql volumes of `aai-db` and `broker-db` are not the same in `docker-compose.yml`, rename if they are.
 
 7. Run mock ls-aai via
 ```shell
@@ -139,9 +143,9 @@ docker compose up -d
 Please review [GDI mock LS-AAI documentation](https://github.com/GenomicDataInfrastructure/starter-kit-lsaai-mock/blob/main/README.md)
 for additional information.
 
-#### Storage and interface configuration
+#### Storage and interfaces configuration
 
-1. Clone [GDI storage and interface repo](https://github.com/GenomicDataInfrastructure/starter-kit-storage-and-interfaces)
+1. Clone [GDI storage and interfaces repo](https://github.com/GenomicDataInfrastructure/starter-kit-storage-and-interfaces)
 
 2. Edit .env file so `auth_ELIXIR_ID`, `auth_ELIXIR_PROVIDER` and `auth_ELIXIR_SECRET` are the same as registered in LS-AAI mock client config.
 ```yaml
@@ -149,7 +153,7 @@ auth_ELIXIR_ID=XC56EL11xx
 auth_ELIXIR_PROVIDER=http://healthri-dev.westeurope.cloudapp.azure.com:8080/oidc/
 auth_ELIXIR_SECRET=wHPVQaYXmdDHg
 ```
-3. Remove `cacert` parameter from `<storage and interface repo>/config/config.yaml` and set url to LS-AAI configuration endpoint url:
+3. Remove `cacert` parameter from `<storage and interfaces repo>/config/config.yaml` and set url to LS-AAI configuration endpoint url:
 ```yaml
 oidc:
   # oidc configuration API must have values for "userinfo_endpoint" and "jwks_uri"
@@ -159,7 +163,7 @@ oidc:
   trusted:
     iss: "/iss.json"
 ```
-4. Add the following pairs of issuer and jku to `<storage and interface repo>/config/iss.json`:
+4. Add the following pairs of issuer and jku to `<storage and interfaces repo>/config/iss.json`:
 
 ```json
 {
@@ -173,11 +177,11 @@ oidc:
 ```
 In the example the issuer should match REMS url.
 
-5. Run storage and interface via
+5. Run storage and interfaces via
 ```shell
 docker compose up -d
 ```
 
 ### Loading data
 
-Loading data into storage and interface and creating a corresponding REMS catalog item is described in [Loading_data.md](Loading_data.md)
+Loading data into storage and interfaces and creating a corresponding REMS catalog item is described in [Loading_data.md](Loading_data.md)
