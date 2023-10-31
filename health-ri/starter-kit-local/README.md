@@ -10,11 +10,10 @@ The setup consists of the following components:
 **Table of content:**
  - [Installing SSL certificate](#Installing-SSL-certificate)
  - [Components configuration and deployment](#components-configuration-and-deployment)
+      + [Mock LS-AAI configuration](#mock-ls-aai-configuration)
       + [REMS configuration](#rems-configuration)
       + [REMS deployment](#rems-deployment)
-      + [Mock LS-AAI configuration](#mock-ls-aai-configuration)
       + [Storage and interfaces configuration](#storage-and-interfaces-configuration)
-
 
 ## Deployment notes
 
@@ -27,37 +26,6 @@ an SSL certificate is a first and mandatory step. It can be done as described [h
 
 Both `REMS` and `storage and interfaces` require mock `ls-aai` preconfigured and running and being connected
 to `starter-kit-lsaai-mock_lsaaimock` network.
-
-#### REMS configuration
-
-To enable communication between docker containers add network configuration to all components and general section of `docker-compose.yml`:
-```yaml
-networks:
-  lsaaimock:
-  my-app-network:
-    external: true
-```
-Change local ports for `rems_app` and `rems_db` so they are `3000:3000` and `5452:5432` respectively.
-
-In `config.edn` provide/update the following parameters:
-```yaml
-# public REMS url
- :public-url "https://healthri-dev.westeurope.cloudapp.azure.com:3001/"
-# configuration endpoint of mock ls-aai:
- :oidc-metadata-url "http://healthri-dev.westeurope.cloudapp.azure.com:8080/oidc/.well-known/openid-configuration"
-# REMS client id and password as per registration in mock ls-aai
- :oidc-client-id "broker"
- :oidc-client-secret "broker-secret"
-```
-Overall REMS configuration is as the following:
-
-- REMS [docker-compose.yaml file](docker-compose-rems.yml)
-- REMS [config.edn file](config.edn) 
-
-#### REMS deployment
-
-Make sure REMS broker client is configured in mock `ls-aai` (see below).
-Follow [instructions](https://github.com/GenomicDataInfrastructure/starter-kit-rems#create-a-jwk-pair-for-ga4gh-visas) to run and populate REMS.
 
 #### Mock LS-AAI configuration
 
@@ -142,6 +110,37 @@ docker compose up -d
 ```
 Please review [GDI mock LS-AAI documentation](https://github.com/GenomicDataInfrastructure/starter-kit-lsaai-mock/blob/main/README.md)
 for additional information.
+
+#### REMS configuration
+
+To enable communication between docker containers add network configuration to all components and general section of `docker-compose.yml`:
+```yaml
+networks:
+  lsaaimock:
+  my-app-network:
+    external: true
+```
+Change local ports for `rems_app` and `rems_db` so they are `3000:3000` and `5452:5432` respectively.
+
+In `config.edn` provide/update the following parameters:
+```yaml
+# public REMS url
+ :public-url "https://healthri-dev.westeurope.cloudapp.azure.com:3001/"
+# configuration endpoint of mock ls-aai:
+ :oidc-metadata-url "http://healthri-dev.westeurope.cloudapp.azure.com:8080/oidc/.well-known/openid-configuration"
+# REMS client id and password as per registration in mock ls-aai
+ :oidc-client-id "broker"
+ :oidc-client-secret "broker-secret"
+```
+Overall REMS configuration is as the following:
+
+- REMS [docker-compose.yaml file](docker-compose-rems.yml)
+- REMS [config.edn file](config.edn) 
+
+#### REMS deployment
+
+Make sure REMS broker client is configured in mock `ls-aai` (see below).
+Follow [instructions](https://github.com/GenomicDataInfrastructure/starter-kit-rems#create-a-jwk-pair-for-ga4gh-visas) to run and populate REMS.
 
 #### Storage and interfaces configuration
 
