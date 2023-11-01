@@ -39,7 +39,7 @@ crypt4gh encrypt -f <file-to-encrypt> -p <sda-c4gh-public-key>
     ```shell
     docker cp auth:/shared/s3cmd.conf
     ```
-    5.2 Get JWK token for the target user and put it into `s3cmd.conf`.
+    5.2 [Get JWK token](./Get_LS_AAI_token.md) for the target user and put it into `s3cmd.conf`.
 
 6. Calculate 256-bit and md5 checksums of a file name:
 ```shell
