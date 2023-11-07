@@ -15,7 +15,7 @@ docker cp ingest:/shared/c4gh.pub.pem .
 ```shell
 crypt4gh encrypt -f <file-to-encrypt> -p <sda-c4gh-public-key>
 ```
-5. Prepare config
+5. Prepare config for `s3`/`s3inbox`
 
     5.1 You can fill in the following template:
     ```yaml
@@ -39,6 +39,8 @@ crypt4gh encrypt -f <file-to-encrypt> -p <sda-c4gh-public-key>
     ```shell
     docker cp auth:/shared/s3cmd.conf
     ```
+   In `s3`/`s3inbox` config `USER_LS-AAI_ID` is the user's LS-AAI ID with the `@` replaced by a `_`; due to a bug in `s3inbox` for now it should match linux user e.g. `azureuser`.
+   `JW_TOKEN` is a JW token issued by LS-AAI, see an instruction how to get it below. 
     5.2 [Get JWK token](./Get_LS_AAI_token.md) for the target user and put it into `s3cmd.conf`.
 
 6. Calculate 256-bit and md5 checksums of a file name:
