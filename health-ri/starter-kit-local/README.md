@@ -83,7 +83,7 @@ Clients configuration should be placed under `<LS-AAI repo>/configuration/aai-mo
 client-name: "auth"
 client-id: "XC56EL11xx"
 client-secret: "wHPVQaYXmdDHg"
-redirect-uris: ["http://aai-mock:3000/oidc-callback"]
+redirect-uris: ["http://aai-mock:8080/oidc-callback"]
 token-endpoint-auth-method: "client_secret_basic"
 scope: ["openid", "profile", "email", "ga4gh_passport_v1"]
 grant-types: ["authorization_code"]
